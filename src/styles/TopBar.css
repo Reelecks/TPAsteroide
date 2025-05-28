@@ -1,0 +1,35 @@
+#navbar {
+  display: flex;
+  justify-content: space-between;
+  height: fit-content;
+  background-color: var(--lightblue);
+  padding: 20px;
+}
+
+#navbar a {
+  color: white;
+  text-decoration: none;
+}
+
+.hour {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+}
+
+.hour p {
+  color: white;
+}
+
+.hour::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: -15px;
+  width: 10px;
+  aspect-ratio: 1;
+  background-color: var(--lightred);
+  border-radius: 100vw;
+}
