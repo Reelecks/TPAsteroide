@@ -1,25 +1,49 @@
-from kafka import KafkaProducer
+# producer.py
+
+from __future__ import print_function
 import json
+import time
+import uuid
+import random
+from kafka import KafkaProducer
+import argparse
 
-# Kafka configuration
-KAFKA_BROKER = 'kafka:9092'
-KAFKA_TOPIC = 'topic1'
+def generate_event():
+    return {
+        "id": "meteor_{0}".format(uuid.uuid4().hex[:8]),
+        "timestamp": int(time.time()),
+        "position": {
+            "x": round(random.uniform(-500, 500), 2),
+            "y": round(random.uniform(-500, 500), 2),
+            "z": round(random.uniform(0, 1000), 2)
+        },
+        "vitesse": round(random.uniform(5, 30), 1),
+        "taille": round(random.uniform(5, 20), 1),
+        "type": random.choice(["asteroide", "comete", "exoplanete"])
+    }
 
-def get_data():
-    # Replace this with your data source
-    return {"message": "Hello, Kafka!"}
-
-def main():
+def main(bootstrap_servers, topic, rate):
     producer = KafkaProducer(
-        bootstrap_servers=KAFKA_BROKER,
-        value_serializer=lambda v: json.dumps(v).encode('utf-8')
+        bootstrap_servers=bootstrap_servers,
+        value_serializer=lambda v: json.dumps(v).encode("utf-8")
     )
-
-    data = get_data()
-    producer.send(KAFKA_TOPIC, value=data)
-    producer.flush()
-    print("Sent:", data)
+    try:
+        while True:
+            event = generate_event()
+            producer.send(topic, value=event)
+            # print() fonctionne sous Py2 et Py3 grace au __future__ import
+            print("Sent: {0}".format(event))
+            time.sleep(1.0 / rate)
+    except (KeyboardInterrupt, SystemExit):
+        print("Arrete par lutilisateur")
 
 if __name__ == "__main__":
-    main()
-    
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--bootstrap-servers", default="kafka:9092",
+                        help="Adresse du broker Kafka")
+    parser.add_argument("--topic", default="space_data",
+                        help="Topic Kafka cible")
+    parser.add_argument("--rate", type=float, default=10.0,
+                        help="Nombre devenements par seconde")
+    args = parser.parse_args()
+    main(args.bootstrap_servers, args.topic, args.rate)
