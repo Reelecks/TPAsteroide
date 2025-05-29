@@ -1,42 +1,61 @@
-from flask import Flask, request, jsonify
-from kafka import KafkaProducer
-from marshmallow import Schema, fields, ValidationError
-import json
+# backend/app.py
+
+from flask import Flask, jsonify
+from pyhive import hive
 
 app = Flask(__name__)
 
-producer = KafkaProducer(
-    bootstrap_servers='kafka:9092',
-    value_serializer=lambda v: json.dumps(v).encode('utf-8')
+# Connexion à HiveServer2 (nom de service Docker = hive-server)
+conn = hive.Connection(
+    host="hive-server",
+    port=10000,
+    username="hiveuser",
+    database="default"
 )
 
-class UserSchema(Schema):
-    id = fields.Str(required=True)
-    nom = fields.Str(required=True)
-    prenom = fields.Str(required=True)
-    age = fields.Int(required=True)
-    email = fields.Email(required=True)
-    preferences = fields.List(fields.Str(), required=True)
-    solde = fields.Float(required=True)
-    ne = fields.Int(required=True)
+def query_to_json(query):
+    cursor = conn.cursor()
+    cursor.execute(query)
+    cols = [c[0] for c in cursor.description]
+    rows = cursor.fetchall()
+    return [dict(zip(cols, row)) for row in rows]
 
-user_schema = UserSchema()
+@app.route("/objects")
+def get_objects():
+    q = """
+    SELECT
+      id,
+      `timestamp`,
+      position.x    AS x,
+      position.y    AS y,
+      position.z    AS z,
+      vitesse,
+      taille,
+      type
+    FROM space_all
+    ORDER BY `timestamp` DESC
+    LIMIT 100
+    """
+    return jsonify(query_to_json(q))
 
-@app.route('/user', methods=['POST'])
-def add_user():
-    json_data = request.get_json()
-    if not json_data:
-        return jsonify({"message": "No input data provided"}), 400
+@app.route("/alerts")
+def get_alerts():
+    q = """
+    SELECT
+      id,
+      `timestamp`,
+      position.x AS x,
+      position.y AS y,
+      position.z AS z,
+      vitesse,
+      taille,
+      type
+    FROM space_alerts
+    ORDER BY `timestamp` DESC
+    LIMIT 100
+    """
+    return jsonify(query_to_json(q))
 
-    try:
-        data = user_schema.load(json_data)
-    except ValidationError as err:
-        return jsonify(err.messages), 422
-
-    producer.send('topic1', data)
-    producer.flush()
-
-    return jsonify({"message": "User data received and sent to Kafka"}), 200
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5550)
+if __name__ == "__main__":
+    # écoute sur 0.0.0.0:5550 comme exposé dans docker-compose
+    app.run(host="0.0.0.0", port=5550)
