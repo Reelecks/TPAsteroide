@@ -96,7 +96,7 @@ services:
       KAFKA_LISTENERS: PLAINTEXT://:9092,INTERNAL://:9093
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092, INTERNAL://kafka:9093
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_CREATE_TOPICS: "topic1:1:1,topic2:1:1"
+      KAFKA_CREATE_TOPICS: "space_data:1:1"
       KAFKA_LOG_RETENTION_BYTES: 1073741824
     depends_on:
       - zookeeper
@@ -202,7 +202,7 @@ services:
         - zookeeper
 
   postgres:
-    image: postgres:13
+    image: postgres:11
     container_name: postgres
     environment:
       POSTGRES_DB: metastore
