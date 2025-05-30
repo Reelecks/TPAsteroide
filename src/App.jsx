@@ -1,5 +1,6 @@
 import "./App.css";
 import AlertBanner from "./components/AlertBanner";
+import Footer from "./components/Footer";
 import MeteorList from "./components/MeteorList";
 import SpaceMap from "./components/SpaceMap";
 import TopBar from "./components/TopBar";
@@ -15,6 +16,7 @@ function App() {
         <SpaceMap data={dataJson} />
         <MeteorList data={dataJson} />
       </div>
+      <Footer />
     </div>
   );
 }
