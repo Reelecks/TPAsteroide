@@ -1,0 +1,11 @@
+#app {
+  width: 100%;
+  background-color: var(--darkblue);
+}
+
+.main {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  gap: 10px;
+}
