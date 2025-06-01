@@ -1,23 +1,15 @@
 import { useState } from "react";
+import { MeteorObject, MeteorType } from "../../types";
 import classes from "./meteor_list.module.css";
-
-export interface MeteorObject {
-  id: string;
-  nom: string;
-  type: string;
-  distance: string;
-  menace: boolean;
-  coord: { x: number; y: number };
-}
 
 export interface MeteorListProps {
   data: MeteorObject[];
 }
 
 export function MeteorList({ data }: MeteorListProps) {
-  const [filter, setFilter] = useState<string>("tous");
+  const [filter, setFilter] = useState<MeteorType | "all">("all");
   const filteredData = data.filter((obj) => {
-    if (filter === "tous") return true;
+    if (filter === "all") return true;
     return obj.type === filter;
   });
   return (
@@ -28,20 +20,20 @@ export function MeteorList({ data }: MeteorListProps) {
       </div>
       <div className={classes.filters}>
         <button
-          onClick={() => setFilter("tous")}
-          className={filter === "tous" ? classes.active : ""}
+          onClick={() => setFilter("all")}
+          className={filter === "all" ? classes.active : ""}
         >
           Tous
         </button>
         <button
-          onClick={() => setFilter("météorite")}
-          className={filter === "météorite" ? classes.active : ""}
+          onClick={() => setFilter("asteroide")}
+          className={filter === "asteroide" ? classes.active : ""}
         >
           Météorites
         </button>
         <button
-          onClick={() => setFilter("exoplanète")}
-          className={filter === "exoplanète" ? classes.active : ""}
+          onClick={() => setFilter("exoplanete")}
+          className={filter === "exoplanete" ? classes.active : ""}
         >
           Exoplanètes
         </button>
