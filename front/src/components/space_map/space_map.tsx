@@ -1,11 +1,12 @@
+import { MeteorObject, MeteorType } from "../../types";
 import classes from "./space_map.module.css";
 
-export const SpaceMap = ({ data }: { data: any[] }) => (
+export const SpaceMap = ({ data }: { data: MeteorObject[] }) => (
   <div className={classes["space-map"]}>
     {data.map((obj) => (
       <div
         key={obj.id}
-        className={`${classes["space-object"]} ${obj.type} ${
+        className={`${classes["space-object"]} ${obj.type as MeteorType} ${
           obj.menace ? classes["menace"] : ""
         }`}
         style={{
@@ -15,7 +16,7 @@ export const SpaceMap = ({ data }: { data: any[] }) => (
           height: "12px",
         }}
         title={obj.nom}
-      ></div>
+      />
     ))}
   </div>
 );
